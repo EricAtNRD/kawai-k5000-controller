@@ -172,19 +172,121 @@ byte-identical to the tracked file at the matching tag.
 
 ### Release checklist
 
-1. Put the new device in place as `Kawai K5000 Controller.amxd`.
-2. Review the patch change — `git diff`, or a sorted maxdiff comparison if the
-   `parameters:` reordering churn gets in the way.
-3. Check the parameter surface against the previous tag:
-   ```bash
-   python3 tools/param-surface-diff.py PREVIOUS.amxd "Kawai K5000 Controller.amxd"
-   ```
-   Anything marked `*** breaking ***` means saved Sets will not bind as before.
-   That is a deliberate decision, not a detail — it belongs in the changelog and
-   arguably in a major version bump.
-4. Update `CHANGELOG.md`.
-5. Commit, then tag `vX.Y`.
-6. Copy to a versioned filename and upload.
+The steps below assume the previous release is reachable as a tag (`vPREV`) and
+that the new build is sitting outside the repo as `Kawai K5000 Controller
+vX.Y.amxd`. Substitute real version numbers as you go.
+
+Note that the baseline for every comparison is pulled **out of git**, not from a
+loose file on disk — that guarantees you are diffing against exactly what
+shipped. `git show` returns the stored blob untouched; the `textconv` driver
+applies only to diffs, so the extracted file is byte-identical to the release.
+
+```bash
+git show vPREV:"Kawai K5000 Controller.amxd" > /tmp/prev.amxd
+```
+
+#### 1. Put the new device in place
+
+```bash
+cp "Kawai K5000 Controller vX.Y.amxd" "Kawai K5000 Controller.amxd"
+```
+
+#### 2. Confirm the version comment inside the patch
+
+The device displays its own version from a plain comment box in the patcher, and
+nothing validates it. A release whose file says one version and whose face says
+another is an easy and very visible mistake.
+
+```bash
+python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd" \
+  | grep '^Version'
+```
+
+It should print `Version X.Y`, matching the tag you are about to create.
+
+#### 3. Review the patch change
+
+```bash
+git diff -- "Kawai K5000 Controller.amxd"
+```
+
+This is usually noisy: the `parameters:` block is written in the patcher's own
+key order, which is not stable between saves, so unrelated reordering can swamp
+the real change. To read past it, compare sorted summaries:
+
+```bash
+diff <(python3 ~/maxdevtools/maxdiff/amxd_textconv.py /tmp/prev.amxd | sort) \
+     <(python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd" | sort)
+```
+
+Expect to recognise every line. Two changes are routine and not worth alarm: the
+patcher's saved window `rect`, which just records where the editing window sat,
+and the version comment from step 2.
+
+#### 4. Check the parameter surface
+
+This is the step that protects existing users. A saved Live Set binds to the
+device by `parameter_longname` and stores automation against each parameter's
+type and range — so renaming, retyping or removing a parameter silently breaks
+every Set already using the device, with no error and no obvious symptom.
+
+```bash
+python3 tools/param-surface-diff.py /tmp/prev.amxd "Kawai K5000 Controller.amxd"
+```
+
+Want:
+
+```
+RESULT: parameter surface intact — saved Sets bind as before.
+```
+
+If instead you get `*** breaking ***` on any line, stop and ask whether the
+surface can be preserved — usually it can, by doing the work behind the existing
+parameters rather than reshaping them. If the break really is necessary, it is a
+deliberate release decision: state it plainly in the changelog, and bundle it
+with any other pending breaking changes so users absorb the disruption once.
+There are known cosmetic wart fixes deliberately waiting for such a release.
+
+Changes reported *without* the breaking flag — `parameter_invisible` being the
+common one — do not affect bindings and are safe to ship.
+
+If a version was skipped publicly, also compare against the last **published**
+tag, since that is what users are actually upgrading from.
+
+#### 5. Load it in Live
+
+Drop the device on a MIDI track and confirm it instantiates, the knobs move, and
+CC reaches the synth. Everything above this point inspects JSON; a patch can
+parse perfectly and still fail to open. This is the only step that proves the
+device works.
+
+#### 6. Update the changelog
+
+```markdown
+## [X.Y] — YYYY-MM-DD
+
+- 
+```
+
+#### 7. Commit and tag
+
+Add explicit paths rather than `-A`, so unrelated work in the tree cannot ride
+along into a release commit.
+
+```bash
+git add "Kawai K5000 Controller.amxd" CHANGELOG.md
+git commit
+git tag -a vX.Y -m "Version X.Y: <summary>"
+```
+
+#### 8. Publish
+
+```bash
+cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller vX.Y.amxd"
+```
+
+Upload that file. Nothing is built or transformed, so the artifact on
+maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
 
 ## License
 
