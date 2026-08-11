@@ -90,6 +90,16 @@ To check a device outside of git:
 python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd"
 ```
 
+Be aware that the `parameters:` block at the top of the summary is emitted in the
+patcher's own key order, which is not stable between saves. It can therefore
+produce a large block of pure reordering churn that is not a real change. To read
+past it, compare sorted summaries:
+
+```bash
+diff <(python3 ~/maxdevtools/maxdiff/amxd_textconv.py OLD.amxd | sort) \
+     <(python3 ~/maxdevtools/maxdiff/amxd_textconv.py NEW.amxd | sort)
+```
+
 #### Known issue: maxdiff and pre-Max 7 patchers
 
 This device's patcher still carries `appversion 6.1.10` — it has never been
@@ -106,6 +116,31 @@ upstream, patch `get_appversion_string_short()` in
 `~/maxdevtools/maxdiff/patch_printer.py` to tolerate the missing keys — e.g. skip
 `architecture` and `modernui` when they are absent rather than indexing them
 directly.
+
+### Checking the parameter surface
+
+A saved Live Set binds to a device's parameters by name, and stores automation
+against their type and range. Changing any of those silently breaks every Set
+that already uses the device — which, for a device that has been in circulation
+since 2015, is the one class of mistake worth guarding against mechanically.
+
+`tools/param-surface-diff.py` compares the parameter surface of two `.amxd`
+files and reports what actually differs:
+
+```bash
+python3 tools/param-surface-diff.py OLD.amxd "Kawai K5000 Controller.amxd"
+```
+
+It separates changes that break Set bindings — `parameter_longname`,
+`parameter_shortname`, `parameter_type`, the range fields, `parameter_enum`,
+`parameter_mapping_index`, and any added or removed parameter — from cosmetic
+ones such as `parameter_invisible`, flagging the former inline as
+`*** breaking ***`. It exits non-zero if the surface changed, so it can gate a
+release.
+
+Run it against the previous release before every commit that touches the device.
+Both maxdiff and this tool answer different questions: maxdiff shows you what
+changed in the patch, this shows you whether that change is safe to ship.
 
 ### Release history in git
 
@@ -134,6 +169,22 @@ cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller v1.6.amxd"
 
 …and upload. Because nothing is transformed, the file on maxforlive.com stays
 byte-identical to the tracked file at the matching tag.
+
+### Release checklist
+
+1. Put the new device in place as `Kawai K5000 Controller.amxd`.
+2. Review the patch change — `git diff`, or a sorted maxdiff comparison if the
+   `parameters:` reordering churn gets in the way.
+3. Check the parameter surface against the previous tag:
+   ```bash
+   python3 tools/param-surface-diff.py PREVIOUS.amxd "Kawai K5000 Controller.amxd"
+   ```
+   Anything marked `*** breaking ***` means saved Sets will not bind as before.
+   That is a deliberate decision, not a detail — it belongs in the changelog and
+   arguably in a major version bump.
+4. Update `CHANGELOG.md`.
+5. Commit, then tag `vX.Y`.
+6. Copy to a versioned filename and upload.
 
 ## License
 
