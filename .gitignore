@@ -1,0 +1,9 @@
+# Private working notes — not for publication
+docs/DEVNOTES.md
+
+# Versioned copies used to seed the initial history; the tracked device is
+# "Kawai K5000 Controller.amxd" and each release is a commit plus a tag.
+Kawai K5000 Controller v*.amxd
+
+# macOS
+.DS_Store
