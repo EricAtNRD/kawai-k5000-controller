@@ -5,5 +5,10 @@ docs/DEVNOTES.md
 # "Kawai K5000 Controller.amxd" and each release is a commit plus a tag.
 Kawai K5000 Controller v*.amxd
 
+# Release artifacts. The GitHub release asset is a zip (GitHub turns spaces in
+# asset filenames into periods, which would end up in Live's device header), so
+# it is built at release time and attached to the tag, never committed.
+Kawai K5000 Controller v*.zip
+
 # macOS
 .DS_Store
