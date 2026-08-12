@@ -1,7 +1,9 @@
 # Kawai K5000 Controller
 
+![K5000 Controller Screenshot](images/screenshot_v1_6.png?raw=true)
+
 This is a Max for Live MIDI Effect that acts as a "control panel" for the 
-Kawaii K5000S (or R) additive synthizer that provides virtual knobs (that 
+Kawai K5000S (or R) additive synthesizer that provides virtual knobs (that 
 can be automated in Live) for most of the actual knobs on the K5000.  
 
 All parameters should auto-map nicely to the Push or other controllers. 
@@ -27,8 +29,8 @@ Author: Eric Weik / [circumjacence.com](https://circumjacence.com)
 - **CC Listen**: the device follows CC sent *from* the synth, so moving a knob
   on the K5000S updates the matching dial in Live.
 - **Xmit All**: pushes the current value of every active knob to the synth in
-  one go, for re-syncing the hardware to the state of a Set. (It appears as
-  `Resend All` in Live's parameter and automation lists.). *Please note*:  
+  one go, for re-syncing the hardware to the state of a Set. It appears as
+  `Resend All` in Live's parameter and automation lists. *Please note*:  
   "Xmit All" staggers the sending of each knob value by 50ms.
 
 
@@ -140,7 +142,7 @@ It separates changes that break Set bindings:
 - `parameter_mapping_index`
 - And any added or removed parameters
 
-From from cosmetic ones such as `parameter_invisible`, and flags the former 
+... from cosmetic ones such as `parameter_invisible`, and flags the former 
 inline as `*** breaking ***`. It exits non-zero if the surface changed, so 
 it can gate a release.
 
