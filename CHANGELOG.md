@@ -4,15 +4,11 @@ All notable changes to the Kawai K5000 Controller are documented here.
 
 ---
 
-## [1.6] — 2026-08-11
+## [1.6]: 2026-08-11
 
 **Key update:** if you've ever had automation on this device cause MIDI lag on
 your K5000, this fixes it.
 
-- Removed the "knob active" toggles from Live's automation lists. They clogged
-  up the automation dropdowns and I could not see any value in automating them —
-  but do let me know if you disagree. (Technically a 1.5 change, but 1.5 was
-  never published, so it is new to everyone downloading this.)
 - Fixed knob changes causing MIDI CC floods, and the resulting lag. When using
   Live automation this was enough to completely saturate a 31.25kbaud MIDI 
   bus, at times producing hundreds or thousands of milliseconds of backlog.
@@ -35,7 +31,7 @@ Never published: folded into the 1.6 release.
 
 - Removed the per-knob "active" toggles from setting
   `parameter_invisible` on all 19 of them. They cluttered the automation
-  dropdown with no clear benefit. (The CC Lidden.)
+  dropdown with no clear benefit.
 
 
 ## [1.4]: 2015-09-02

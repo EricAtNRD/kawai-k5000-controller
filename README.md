@@ -13,10 +13,11 @@ the second and third pages!
 Please note that each knob has *a switch* below to activate it. 
 This allows you to only alter selected parameters in a stored patch.
 
-Originally released in 2015. Listed on maxforlive.com:
+Originally released in 2015 on maxforlive.com:
 <https://maxforlive.com/library/device/3194/kawai-k5000-controller>
 
-Author: Eric Weik / [circumjacence.com](https://circumjacence.com)
+*If you just want to download and use the device, [maxforlive.com](https://maxforlive.com/library/device/3194/kawai-k5000-controller) is the easiest method.* 
+This repo is more development-oriented.
 
 ---
 
@@ -304,4 +305,4 @@ git tag -a vX.Y -m "Version X.Y: <summary>"
 cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller vX.Y.amxd"
 ```
 
-Upload that file. Nothing is built or transformed so the artifact on maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
+Upload the `vX.Y.amxd` file. Nothing is built or transformed so the artifact on maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
