@@ -85,7 +85,7 @@ def main():
     if breaking or added or removed:
         print("RESULT: parameter surface CHANGED — treat as a breaking release.")
         return 1
-    print("RESULT: parameter surface intact — saved Sets bind as before.")
+    print("RESULT: parameter surface intact. Saved Sets bind as before.")
     return 0
 
 

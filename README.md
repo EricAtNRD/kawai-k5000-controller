@@ -24,9 +24,9 @@ Author: Eric Weik / [circumjacence.com](https://circumjacence.com)
   from Live (as well as 3 other knobs for Port. / ModWh / ChAfterTouch)
 - A per-knob **"active" toggle**, so only the parameters you care about transmit
   (helpful for randomizing or storing just a few changed values in a Live Set)
-- **CC Listen** — the device follows CC sent *from* the synth, so moving a knob
+- **CC Listen**: the device follows CC sent *from* the synth, so moving a knob
   on the K5000S updates the matching dial in Live.
-- **Xmit All** — pushes the current value of every active knob to the synth in
+- **Xmit All**: pushes the current value of every active knob to the synth in
   one go, for re-syncing the hardware to the state of a Set. (It appears as
   `Resend All` in Live's parameter and automation lists.). *Please note*:  
   "Xmit All" staggers the sending of each knob value by 50ms.
@@ -36,7 +36,7 @@ Author: Eric Weik / [circumjacence.com](https://circumjacence.com)
 
 - Ableton Live with Max for Live
 - A Kawai K5000S or K5000R, connected via MIDI
-- The device is a **MIDI Effect** — place it on a MIDI track whose output is
+- The device is a **MIDI Effect**.  Place it on a MIDI track whose output is 
   routed to the K5000.
 
 ## Installation
@@ -102,7 +102,7 @@ diff <(python3 ~/maxdevtools/maxdiff/amxd_textconv.py OLD.amxd | sort) \
 
 #### Known issue: maxdiff and pre-Max 7 patchers
 
-This device's patcher still carries `appversion 6.1.10` — it has never been
+This device's patcher still carries `appversion 6.1.10`: it has never been
 re-saved by a newer Max, which is deliberate, as it keeps the file loadable by
 older installs. As of maxdevtools `cbec332`, `maxdiff` crashes on such files:
 
@@ -113,7 +113,7 @@ KeyError: 'modernui'
 `modernui` was added to the `appversion` block in Max 7, and
 `maxdiff/patch_printer.py` reads it without a default. Until this is fixed
 upstream, patch `get_appversion_string_short()` in
-`~/maxdevtools/maxdiff/patch_printer.py` to tolerate the missing keys — e.g. skip
+`~/maxdevtools/maxdiff/patch_printer.py` to tolerate the missing keys. E.g. skip
 `architecture` and `modernui` when they are absent rather than indexing them
 directly.
 
@@ -121,8 +121,8 @@ directly.
 
 A saved Live Set binds to a device's parameters by name, and stores automation
 against their type and range. Changing any of those silently breaks every Set
-that already uses the device — which, for a device that has been in circulation
-since 2015, is the one class of mistake worth guarding against mechanically.
+that already uses the device.  For a device that has been in circulation
+since 2015, this is worth guarding against mechanically.
 
 `tools/param-surface-diff.py` compares the parameter surface of two `.amxd`
 files and reports what actually differs:
@@ -131,16 +131,23 @@ files and reports what actually differs:
 python3 tools/param-surface-diff.py OLD.amxd "Kawai K5000 Controller.amxd"
 ```
 
-It separates changes that break Set bindings — `parameter_longname`,
-`parameter_shortname`, `parameter_type`, the range fields, `parameter_enum`,
-`parameter_mapping_index`, and any added or removed parameter — from cosmetic
-ones such as `parameter_invisible`, flagging the former inline as
-`*** breaking ***`. It exits non-zero if the surface changed, so it can gate a
-release.
+It separates changes that break Set bindings: 
+- `parameter_longname`
+- `parameter_shortname`
+- `parameter_type`
+- the range fields
+- `parameter_enum`
+- `parameter_mapping_index`
+- And any added or removed parameters
 
-Run it against the previous release before every commit that touches the device.
-Both maxdiff and this tool answer different questions: maxdiff shows you what
-changed in the patch, this shows you whether that change is safe to ship.
+From from cosmetic ones such as `parameter_invisible`, and flags the former 
+inline as `*** breaking ***`. It exits non-zero if the surface changed, so 
+it can gate a release.
+
+It should be run against the previous release before every commit that 
+touches the device.  Both maxdiff and this tool answer different questions: 
+maxdiff shows what changed in the patch, this shows whether that change is 
+safe to ship.
 
 ### Release history in git
 
@@ -148,14 +155,14 @@ The tracked file is always `Kawai K5000 Controller.amxd`. Each public release is
 a commit against that same path plus a tag (`v1.4`, `v1.5`, `v1.6`, …), so the
 change between any two releases is a real diff rather than an unrelated file.
 
-Note that a Max for Live device has no internal title field — the name Live shows
-in the device header is taken from the filename. The tracked copy therefore
-displays without a version number. When publishing a release, rename the artifact
-to include the version (`Kawai K5000 Controller v1.6.amxd`) so it reads correctly
-in the device header.
+Note that a Max for Live device has no internal title field:  the name Live 
+shows in the device header is taken from the filename. The tracked copy 
+therefore displays without a version number. When publishing a release, 
+rename the artifact to include the version (`Kawai K5000 Controller v1.6.amxd`) 
+so it reads correctly in the device header.
 
 The device is tracked **unfrozen**, and is published unfrozen too. Freezing exists
-to bundle a device's dependencies into the `.amxd`, and this one has none — its
+to bundle a device's dependencies into the `.amxd`, and this one has none. Its
 `dependency_cache` is empty and every object in the patch is stock Max, with no
 abstractions, externals, JS or assets. Freezing would bundle nothing while
 requiring a re-save in Max, which rewrites the patcher's `appversion` and drops
@@ -167,37 +174,35 @@ There is therefore no build step. Publishing a release is:
 cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller v1.6.amxd"
 ```
 
-…and upload. Because nothing is transformed, the file on maxforlive.com stays
+...and upload. Because nothing is transformed, the file on maxforlive.com stays
 byte-identical to the tracked file at the matching tag.
 
 ### Release checklist
-
 The steps below assume the previous release is reachable as a tag (`vPREV`) and
 that the new build is sitting outside the repo as `Kawai K5000 Controller
 vX.Y.amxd`. Substitute real version numbers as you go.
 
 Note that the baseline for every comparison is pulled **out of git**, not from a
-loose file on disk — that guarantees you are diffing against exactly what
+loose file on disk.  This guarantees you are diffing against exactly what
 shipped. `git show` returns the stored blob untouched; the `textconv` driver
 applies only to diffs, so the extracted file is byte-identical to the release.
 
-```bash
+```sh
 git show vPREV:"Kawai K5000 Controller.amxd" > /tmp/prev.amxd
 ```
 
 #### 1. Put the new device in place
 
-```bash
+```sh
 cp "Kawai K5000 Controller vX.Y.amxd" "Kawai K5000 Controller.amxd"
 ```
 
 #### 2. Confirm the version comment inside the patch
-
 The device displays its own version from a plain comment box in the patcher, and
 nothing validates it. A release whose file says one version and whose face says
 another is an easy and very visible mistake.
 
-```bash
+```sh
 python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd" \
   | grep '^Version'
 ```
@@ -205,8 +210,7 @@ python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd" \
 It should print `Version X.Y`, matching the tag you are about to create.
 
 #### 3. Review the patch change
-
-```bash
+```sh
 git diff -- "Kawai K5000 Controller.amxd"
 ```
 
@@ -224,56 +228,53 @@ patcher's saved window `rect`, which just records where the editing window sat,
 and the version comment from step 2.
 
 #### 4. Check the parameter surface
-
 This is the step that protects existing users. A saved Live Set binds to the
 device by `parameter_longname` and stores automation against each parameter's
-type and range — so renaming, retyping or removing a parameter silently breaks
+type and range: so renaming, retyping or removing a parameter silently breaks
 every Set already using the device, with no error and no obvious symptom.
 
-```bash
+```sh
 python3 tools/param-surface-diff.py /tmp/prev.amxd "Kawai K5000 Controller.amxd"
 ```
 
 Want:
-
 ```
-RESULT: parameter surface intact — saved Sets bind as before.
+RESULT: parameter surface intact.  Saved Sets bind as before.
 ```
 
-If instead you get `*** breaking ***` on any line, stop and ask whether the
-surface can be preserved — usually it can, by doing the work behind the existing
+If instead there is `*** breaking ***` on any line, stop and ask whether the
+surface can be preserved.  Usually it can, by doing the work behind the existing
 parameters rather than reshaping them. If the break really is necessary, it is a
-deliberate release decision: state it plainly in the changelog, and bundle it
+deliberate release decision: state it in the changelog, and bundle it
 with any other pending breaking changes so users absorb the disruption once.
 There are known cosmetic wart fixes deliberately waiting for such a release.
 
-Changes reported *without* the breaking flag — `parameter_invisible` being the
-common one — do not affect bindings and are safe to ship.
+Changes reported *without* the breaking flag (such as the 
+`parameter_invisible` changes in `v1.5`) do not affect bindings and are safe 
+to ship.
 
 If a version was skipped publicly, also compare against the last **published**
 tag, since that is what users are actually upgrading from.
 
 #### 5. Load it in Live
-
 Drop the device on a MIDI track and confirm it instantiates, the knobs move, and
 CC reaches the synth. Everything above this point inspects JSON; a patch can
 parse perfectly and still fail to open. This is the only step that proves the
 device works.
 
 #### 6. Update the changelog
-
 ```markdown
-## [X.Y] — YYYY-MM-DD
+## [X.Y]: YYYY-MM-DD
 
-- 
+- Bug / feature 1 description
+- Bug / feature 2 description
 ```
 
 #### 7. Commit and tag
-
 Add explicit paths rather than `-A`, so unrelated work in the tree cannot ride
 along into a release commit.
 
-```bash
+```sh
 git add "Kawai K5000 Controller.amxd" CHANGELOG.md
 git commit
 git tag -a vX.Y -m "Version X.Y: <summary>"
@@ -281,14 +282,8 @@ git tag -a vX.Y -m "Version X.Y: <summary>"
 
 #### 8. Publish
 
-```bash
+```sh
 cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller vX.Y.amxd"
 ```
 
-Upload that file. Nothing is built or transformed, so the artifact on
-maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
-
-## License
-
-[Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
-(CC BY 4.0). See [LICENSE](LICENSE).
+Upload that file. Nothing is built or transformed so the artifact on maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
