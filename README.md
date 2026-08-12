@@ -197,10 +197,26 @@ git show vPREV:"Kawai K5000 Controller.amxd" > /tmp/prev.amxd
 cp "Kawai K5000 Controller vX.Y.amxd" "Kawai K5000 Controller.amxd"
 ```
 
-#### 2. Confirm the version comment inside the patch
+#### 2. Set the version comment inside the patch
 The device displays its own version from a plain comment box in the patcher, and
 nothing validates it. A release whose file says one version and whose face says
 another is an easy and very visible mistake.
+
+Do **not** edit this in Max. Re-saving there also rewrites the patcher's
+`appversion`, which this device deliberately keeps at 6.1.10 (see the maxdiff
+known issue above). Edit the container directly instead:
+
+```sh
+python3 tools/set-device-version.py "Kawai K5000 Controller.amxd" X.Y
+```
+
+The tool substitutes the version string inside the `ptch` payload and fixes up
+the chunk length, leaving every other byte untouched — so this shows up as a
+one-line change rather than a reserialised file. It refuses to run unless it
+finds exactly one `Version …` string, so it cannot silently edit the wrong
+thing.
+
+Confirm the result:
 
 ```sh
 python3 ~/maxdevtools/maxdiff/amxd_textconv.py "Kawai K5000 Controller.amxd" \
