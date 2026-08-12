@@ -2,12 +2,41 @@
 
 All notable changes to the Kawai K5000 Controller are documented here.
 
+---
+
+## [1.6] — 2026-08-11
+
+**Key update:** if you've ever had automation on this device cause MIDI lag on
+your K5000, this fixes it.
+
+- Removed the "knob active" toggles from Live's automation lists. They clogged
+  up the automation dropdowns and I could not see any value in automating them —
+  but do let me know if you disagree. (Technically a 1.5 change, but 1.5 was
+  never published, so it is new to everyone downloading this.)
+- Fixed knob changes causing MIDI CC floods, and the resulting lag. When using
+  Live automation this was enough to completely saturate a 31.25kbaud MIDI 
+  bus, at times producing hundreds or thousands of milliseconds of backlog.
+  - The knobs are floating point and have to be folded to 7-bit MIDI CC values,
+    so the device resent the same value repeatedly: a sweep through
+    1.01, 1.02, 1.03 ... 1.1 transmitted the integer `1` ten times.
+  - Values are now filtered to transmit only when the integer value changes.
+- Fixed "Xmit All" not actually transmitting all active knobs.
+  - Multiple `ctlout` objects firing from a single UI event get collapsed: only
+    the last in each service window (~32ms on my system) reaches Live's MIDI
+    stream. Automation was never affected, as it runs on the audio thread.
+  - Each value is now staggered by 50ms, so a full transmit takes up to 800ms.
+- Fixed two instances of the device in one Live Set interfering with each
+  other's transmission tracking.
+- Removed two orphaned `ctlout` objects that had no connections and never fired.
+
+
 ## [1.5]: 2015-09-05
 Never published: folded into the 1.6 release.
 
 - Removed the per-knob "active" toggles from setting
   `parameter_invisible` on all 19 of them. They cluttered the automation
   dropdown with no clear benefit. (The CC Lidden.)
+
 
 ## [1.4]: 2015-09-02
 
