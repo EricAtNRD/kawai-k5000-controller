@@ -297,12 +297,60 @@ along into a release commit.
 git add "Kawai K5000 Controller.amxd" CHANGELOG.md
 git commit
 git tag -a vX.Y -m "Version X.Y: <summary>"
+git push origin main
+git push origin vX.Y
 ```
 
-#### 8. Publish
+Tags need their own push: `git push` sends commits only, and a release with no
+tag on the remote loses the landmark that makes the history readable.
+
+#### 8. Publish to maxforlive.com
 
 ```sh
 cp "Kawai K5000 Controller.amxd" "Kawai K5000 Controller vX.Y.amxd"
 ```
 
 Upload the `vX.Y.amxd` file. Nothing is built or transformed so the artifact on maxforlive.com stays byte-identical to the tracked device at tag `vX.Y`.
+
+#### 9. Cut the GitHub release
+
+Attach the same artifact to the tag, so a download from GitHub is traceable to a
+commit.
+
+**Ship it as a zip, not as a bare `.amxd`.** GitHub sanitises release asset
+filenames and replaces spaces with periods, which would land the device as
+`Kawai.K5000.Controller.vX.Y.amxd` — and since a Max for Live device takes its
+displayed name from its filename, those periods would show up in Live's device
+header. Zipping avoids this: the archive name gets sanitised, but the file inside
+keeps its spaces.
+
+```sh
+zip "Kawai K5000 Controller vX.Y.zip" "Kawai K5000 Controller vX.Y.amxd"
+
+gh release create vX.Y \
+  "Kawai K5000 Controller vX.Y.zip" \
+  --title "vX.Y — <summary>" \
+  --notes-file <notes.md> \
+  --verify-tag
+```
+
+`--verify-tag` fails rather than inventing a tag if the name is mistyped.
+
+Then confirm what a stranger actually receives:
+
+```sh
+gh release download vX.Y --dir /tmp/relcheck
+unzip -l /tmp/relcheck/*.zip
+```
+
+The listed filename should still contain spaces. To prove the artifact matches
+the tag, compare it against the stored blob:
+
+```sh
+unzip -o -q /tmp/relcheck/*.zip -d /tmp/relcheck/ext
+shasum -a 256 /tmp/relcheck/ext/*.amxd
+git show vX.Y:"Kawai K5000 Controller.amxd" | shasum -a 256
+```
+
+Both hashes must match. That is the whole provenance claim in one line: the file
+users extract is the file in the repo.
