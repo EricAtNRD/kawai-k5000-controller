@@ -57,15 +57,18 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 
 ## AI Disclosure
 
-The `Kawai K5000 Controller.amxd` patch was created and is maintained by the author.
+The `Kawai K5000 Controller.amxd` patch itself was created and is maintained 
+by the *human* author.
 
-During the 1.6 update, the author used Claude Code (Opus 5) to:
-1. Set up this git repository
+During the 1.6 update, Claude Code (Opus 5) was used to:
+1. Set up the git repository (with Ableton's [maxdevtools](https://github.com/Ableton/maxdevtools.git) 
+   for diffs)
 2. Create a development pipeline and the `tools/param-surface-diff.py` and 
-   `tools/set-device-version.py` utilities
-3. Create or update project documentation
+   `tools/set-device-version.py` utilities (e.g. dev tools, not part of the
+   actual Max patch)
+3. Create and update project documentation
 
-*After using Claude Code, the author has reviewed and edited the tools and
+*After using Claude Code, the human author has reviewed and edited and tools and
 documentation as needed to verify their integrity.*
 
 ---
