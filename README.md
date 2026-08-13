@@ -55,4 +55,17 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 
+## AI Disclosure
+
+The `Kawai K5000 Controller.amxd` patch was created and is maintained by the author.
+
+During the 1.6 update, the author used Claude Code (Opus 5) to:
+1. Set up this git repository
+2. Create a development pipeline and the `tools/param-surface-diff.py` and 
+   `tools/set-device-version.py` utilities
+3. Create or update project documentation
+
+*After using Claude Code, the author has reviewed and edited the tools and
+documentation as needed to verify their integrity.*
+
 ---
